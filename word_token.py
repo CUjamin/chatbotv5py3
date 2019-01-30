@@ -18,23 +18,33 @@ class WordToken(object):
         """
         words_count = {}
         for file in file_list:
+            # 加载单个文件
             with open(file, 'r',encoding='UTF-8') as file_object:
                 for line in file_object.readlines():
+                    # 单行
                     line = line.strip()
+                    # 分词
                     seg_list = jieba.cut(line)
+                    # 统计words_count:{str,count}
                     for str in seg_list:
                         if str in words_count:
                             words_count[str] = words_count[str] + 1
                         else:
                             words_count[str] = 1
-
+        # sorted_list[[words_count,str]]
         sorted_list = [[v[1], v[0]] for v in words_count.items()]
+        # 排序 - 降序
         sorted_list.sort(reverse=True)
+        # 编号，元素
         for index, item in enumerate(sorted_list):
             word = item[1]
+            # 在样本中出现频率超过min_freq才会进入词表
+            # 由于是降序，当出现item[0] < min_freq 时，剩余的数据频率均小于min_freq，因此break
             if item[0] < min_freq:
                 break
+            # 按照当前sorted_list顺序，将词语顺序保存至 word2id_dict，编号从START_ID开始递增  词语:编号，使用词语查询编号
             self.word2id_dict[word] = self.START_ID + index
+            # 按照当前sorted_list顺序，将词语顺序保存至 id2word_dict，编号从START_ID开始递增  编号:词语，使用编号查询词语
             self.id2word_dict[self.START_ID + index] = word
         return index
 

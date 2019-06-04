@@ -35,7 +35,7 @@ max_token_id = wordToken.load_file_list(['./samples/question', './samples/answer
 num_encoder_symbols = max_token_id + 5
 num_decoder_symbols = max_token_id + 5
 
-
+# 将 句子转化成 分词后对应的id序列（向量）
 def get_id_list_from(sentence):
     sentence_id_list = []
     # 分词
@@ -109,7 +109,7 @@ def get_samples(train_set, batch_num):
 
 
 def seq_to_encoder(input_seq):
-    """从输入空格分隔的数字id串，转成预测用的encoder、decoder、target_weight等
+    """从输入空格分隔的数字id串，转成预测用的 encoder、decoder、target_weight 等
     """
     input_seq_array = [int(v) for v in input_seq.split()]
     encoder_input = [PAD_ID] * (input_seq_len - len(input_seq_array)) + input_seq_array
@@ -236,20 +236,31 @@ def predict():
         sys.stdout.write("> ")
         sys.stdout.flush()
         input_seq = sys.stdin.readline()
+        print("input_seq:%s" %input_seq)
         while input_seq:
             input_seq = input_seq.strip()
             # 从model中找到对应的id list向量
             input_id_list = get_id_list_from(input_seq)
+            print("input_id_list:%s" % input_id_list)
             # 向量长度>0
             if (len(input_id_list)):
+                # 插入空格
                 sample_encoder_inputs, sample_decoder_inputs, sample_target_weights = seq_to_encoder(' '.join([str(v) for v in input_id_list]))
-
+                for encoder in sample_encoder_inputs:
+                    print(print("sample_encoder_inputs - encoder:%s ; " % encoder))
+                for decoder in sample_decoder_inputs:
+                    print(print("sample_decoder_inputs - decoder:%s ; " % decoder))
+                # for target_weights in sample_target_weights:
+                #     print(print("sample_target_weights - target_weights:%s ; " % target_weights))
                 input_feed = {}
                 for l in range(input_seq_len):
                     input_feed[encoder_inputs[l].name] = sample_encoder_inputs[l]
+                    print(" encoder name %s value %s " %(encoder_inputs[l].name,sample_encoder_inputs[l]))
                 for l in range(output_seq_len):
                     input_feed[decoder_inputs[l].name] = sample_decoder_inputs[l]
+                    print(" decoder name %s value %s " %(decoder_inputs[l].name,sample_decoder_inputs[l]))
                     input_feed[target_weights[l].name] = sample_target_weights[l]
+                    # print(" target_weights name %f value %f " %(target_weights[l].name,sample_target_weights[l]))
                 input_feed[decoder_inputs[output_seq_len].name] = np.zeros([2], dtype=np.int32)
 
                 # 预测输出

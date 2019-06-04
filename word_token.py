@@ -64,3 +64,4 @@ class WordToken(object):
         else:
             return None
 
+
